@@ -6,6 +6,39 @@ class BaseModel
 {
 	public $connect;
 
+	public function fill($arr){
+		foreach ($this->columns as $col) {
+			if(isset($this->{$col}) && $this->{$col} != null){
+				$this->{$col} = $arr[$col];
+			}
+		}
+		return $this;
+	}
+
+	public function insert(){
+
+		$this->queryBuilder = "
+			insert into $this->tableName 
+			(";
+		foreach ($this->columns as $col) {
+			$this->queryBuilder .= "$col, ";
+		}
+		$this->queryBuilder = rtrim($this->queryBuilder, ", ");
+		$this->queryBuilder.=	") values (";
+		
+		foreach ($this->columns as $col) {
+			$this->queryBuilder .= "'" . $this->{$col} . "', ";
+		}
+		$this->queryBuilder = rtrim($this->queryBuilder, ", ");
+		$this->queryBuilder .= ")";
+
+
+		$stmt = $this->connect->prepare($this->queryBuilder);
+		$stmt->execute();
+
+		return true;
+	}
+
 	// Hàm lấy ra kết quả với điều kiện custom
 	static function where($arr = []){
 		$model = new static();
@@ -67,6 +100,17 @@ class BaseModel
 		$stmt->execute();
 		$rs = $stmt->fetchAll(PDO::FETCH_CLASS, get_class($this)); // trả về đối tượng
 		return $rs;
+	}
+
+	public function first(){
+		$stmt = $this->connect->prepare($this->queryBuilder);
+		$stmt->execute();
+		$rs = $stmt->fetchAll(PDO::FETCH_CLASS, get_class($this)); // trả về đối tượng
+		if(count($rs) > 0){
+			return $rs[0];
+		}
+
+		return null;
 	}
 
 	// hàm lấy ra tất cả bản ghi trong bảng
