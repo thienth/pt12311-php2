@@ -4,7 +4,10 @@ require_once 'models/BaseModel.php';
 require_once 'models/Product.php';
 require_once 'models/User.php';
 
-$products = Product::where(['name', 'like', '%iphone%'])->get();
+$products = Product::where(['created_by', 1])
+					->andWhere(['price', '>=', 1000])
+					->orWhere(['name', 'like', '%nokia%'])
+					->get();
 echo "<pre>";
 var_dump($products);die; 
 

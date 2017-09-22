@@ -27,6 +27,41 @@ class BaseModel
 		return $model;
 	}
 
+	public function andWhere($arr = []){
+		$this->queryBuilder .= " and ";
+		switch (count($arr)) {
+			case 2:
+				$this->queryBuilder .= " $arr[0] = '$arr[1]' ";
+				break;
+			case 3:
+				$this->queryBuilder .= " $arr[0] $arr[1] '$arr[2]' ";
+				break;
+			
+			default:
+				var_dump('error');die;
+				break;
+		}
+
+		return $this;
+	}
+
+	public function orWhere($arr = []){
+		$this->queryBuilder .= " or ";
+		switch (count($arr)) {
+			case 2:
+				$this->queryBuilder .= " $arr[0] = '$arr[1]' ";
+				break;
+			case 3:
+				$this->queryBuilder .= " $arr[0] $arr[1] '$arr[2]' ";
+				break;
+			
+			default:
+				var_dump('error');die;
+				break;
+		}
+		return $this;
+	}
+
 	public function get(){
 		$stmt = $this->connect->prepare($this->queryBuilder);
 		$stmt->execute();
