@@ -40,20 +40,20 @@ class BaseModel
 		$sql = rtrim($sql, ", ");
 		$sql .= ")";
 		
-		$conn->beginTransaction(); 
+		$this->connect->beginTransaction(); 
 		
 		try{
 			$stmt = $this->connect->prepare($sql);
 			$stmt->execute();
 			$this->id = $this->connect->lastInsertId(); 
-			$conn->commit(); 
+			$this->connect->commit(); 
 			if($this->id > 0){
 				return $this;
 			}
 			return false;
 		}
 		catch(PDOException $ex){
-			$conn->rollback(); 
+			$this->connect->rollback(); 
 			return false;
 		}
 	}
@@ -74,20 +74,26 @@ class BaseModel
 		
 		$sql .= " where id = '" . $this->id ."' ";
 		
-		$conn->beginTransaction(); // bat luu lai trang thai tai thoi diem nay cua db
+		$this->connect->beginTransaction(); // bat luu lai trang thai tai thoi diem nay cua db
 		
 		try{
 			$stmt = $this->connect->prepare($sql);
 			$stmt->execute();
-			$conn->commit();  // neu thuc hien execute thanh cong thi se ap dung cho db
+			$this->connect->commit();  // neu thuc hien execute thanh cong thi se ap dung cho db
 			return $this;
 		}
 		catch(PDOException $ex){
-			$conn->rollback(); // neu thuc hien execute khong thanh cong thi tra loi trang thai luc beginTransaction()
+			$this->connect->rollback(); // neu thuc hien execute khong thanh cong thi tra loi trang thai luc beginTransaction()
 			return false;
 		}
 	}
 
+	function delete(){
+		$this->queryBuilder = "delete from $this->tableName where id = $this->id";
+		$stmt = $this->connect->prepare($this->queryBuilder);
+		$stmt->execute();
+		return true;
+	}
 	// Hàm lấy ra kết quả với điều kiện custom Product::where(['ten cot', 'phep so sanh', 'gia tri'])
 	// => hinh thanh cau lenh select * from ten bang where 'ten cot' 'phep so sanh' 'gia tri'
 	static function where($arr = []){
@@ -203,7 +209,7 @@ class BaseModel
 	// Khi new Base model o dau thi lap tuc doi tuong moi se co ket noi den csdl luon
 	function __construct()
 	{
-		$this->connect = new PDO("mysql:host=127.0.0.1;dbname=pt12311_php2;charset=utf8", "root", "123456");
+		$this->connect = new PDO("mysql:host=127.0.0.1;dbname=pt12311_php2;charset=utf8", "root", "");
 		$this->connect->setAttribute(PDO::ATTR_EMULATE_PREPARES,TRUE);
 	}
 }
