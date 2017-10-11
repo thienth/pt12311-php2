@@ -1,0 +1,16 @@
+{
+    "name": "gin/l12",
+    "authors": [
+        {
+            "name": "trivp",
+            "email": "trivp@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+    	"psr-4":{
+    		"Controllers\\": "controllers/",
+    		"Models\\": "models/"
+    	}
+    }
+}
